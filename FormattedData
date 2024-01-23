@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenFDA Drug Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #resultContainer {
+            margin-top: 20px;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <h1>OpenFDA Drug Info Only Selected ones</h1>
+
+    <!-- Input and Search Button -->
+    <label for="medicineInput">Enter Medicine Name:</label>
+    <input type="text" id="medicineInput" placeholder="e.g., aspirin">
+    <button onclick="searchMedicine()">Search</button>
+
+    <!-- Container for Results -->
+    <div id="resultContainer"></div>
+
+    <!-- JavaScript Code -->
+    <script>
+        // Function to initiate the search for medicine
+        function searchMedicine() {
+            // Get the medicine name from the input field
+            const medicineName = document.getElementById('medicineInput').value.trim();
+
+            if (medicineName === '') {
+                alert('Please enter a medicine name.');
+                return;
+            }
+
+            // Define the API endpoint with the medicine name as a search parameter
+            const apiUrl = `https://api.fda.gov/drug/label.json?search=openfda.generic_name:${medicineName}&limit=1`;
+
+            // Make the API request using the fetch function
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    // Check for results and display formatted information
+                    if (data.results && data.results.length > 0) {
+                        displayResults(data.results[0]);
+                    } else {
+                        displayResults(null);
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors that occurred during the fetch
+                    console.error('Error:', error.message);
+                });
+        }
+
+        // Function to display the formatted results
+        function displayResults(result) {
+            // Display the formatted details in the resultContainer div
+            const resultContainer = document.getElementById('resultContainer');
+            resultContainer.innerHTML = ''; // Clear previous results
+
+            if (result) {
+                // Display the medicine details with specific sections
+                resultContainer.innerHTML += '<h2>Medicine Details:</h2>';
+                resultContainer.innerHTML += `<p><strong>Brand Name:</strong> ${result.openfda.brand_name ? result.openfda.brand_name[0] : 'N/A'}</p>`;
+                resultContainer.innerHTML += `<p><strong>Generic Name:</strong> ${result.openfda.generic_name ? result.openfda.generic_name[0] : 'N/A'}</p>`;
+                resultContainer.innerHTML += `<p><strong>Manufacturer:</strong> ${result.openfda.manufacturer_name ? result.openfda.manufacturer_name[0] : 'N/A'}</p>`;
+                resultContainer.innerHTML += `<p><strong>Indications:</strong> ${result.indications_and_usage ? result.indications_and_usage[0] : 'N/A'}</p>`;
+                resultContainer.innerHTML += `<p><strong>Warnings:</strong> ${result.warnings ? result.warnings[0] : 'N/A'}</p>`;
+                resultContainer.innerHTML += `<p><strong>Usage:</strong> ${result.indications_and_usage ? result.indications_and_usage[0] : 'N/A'}</p>`;
+                resultContainer.innerHTML += `<p><strong>How to Use:</strong> ${result.how_to_use ? result.how_to_use[0] : 'N/A'}</p>`;
+                resultContainer.innerHTML += `<p><strong>Purpose:</strong> ${result.purpose ? result.purpose[0] : 'N/A'}</p>`;
+                resultContainer.innerHTML += `<p><strong>Stop Use:</strong> ${result.stop_use ? result.stop_use[0] : 'N/A'}</p>`;
+                // Add more details as needed...
+            } else {
+                // Display a message when no information is found
+                resultContainer.innerHTML = '<p>No information found for the specified medicine.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
+
